@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODO</title>
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --text-dim: #6e6e73;
+    --border: #e5e5ea;
+    --accent: #007aff;
+    --danger: #ff3b30;
+    --high: #ff3b30;
+    --medium: #ff9500;
+    --low: #34c759;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+  .app {
+    width: 100%;
+    max-width: 640px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 20px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .add-form-row {
+    display: flex;
+    gap: 8px;
+  }
+  input[type="text"], input[type="date"], select {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, select:focus {
+    border-color: var(--accent);
+  }
+  .title-input { flex: 1; font-size: 15px; }
+  .add-form-row select, .add-form-row input[type="date"] { flex: 1; min-width: 0; }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .btn-add {
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 18px;
+    white-space: nowrap;
+  }
+  .btn-add:hover { opacity: 0.9; }
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .filter-btn {
+    background: var(--card);
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    font-size: 13px;
+  }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .tag-select {
+    margin-left: auto;
+  }
+  ul.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  li.item {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  li.item.done { opacity: 0.5; }
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    padding: 0;
+  }
+  .checkbox.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-size: 13px;
+  }
+  .item-body { flex: 1; min-width: 0; }
+  .item-title {
+    font-size: 15px;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .item-title.done { text-decoration: line-through; }
+  .item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text-dim);
+  }
+  .badge.priority-high { background: rgba(255,59,48,0.12); color: var(--high); }
+  .badge.priority-medium { background: rgba(255,149,0,0.12); color: var(--medium); }
+  .badge.priority-low { background: rgba(52,199,89,0.12); color: var(--low); }
+  .badge.due { background: rgba(0,122,255,0.1); color: var(--accent); }
+  .badge.overdue { background: rgba(255,59,48,0.12); color: var(--danger); }
+  .badge.tag { background: rgba(0,0,0,0.05); color: var(--text-dim); }
+  .delete-btn {
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 18px;
+    padding: 4px 8px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .delete-btn:hover { color: var(--danger); }
+  .empty {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 40px 0;
+    font-size: 14px;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 16px;
+    padding: 0 4px;
+  }
+  .theme-toggle {
+    position: absolute;
+    top: 40px;
+    right: 24px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 20px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --card: #1c1c1e;
+      --text: #f5f5f7;
+      --text-dim: #98989d;
+      --border: #38383a;
+      --shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #f5f5f7;
+    --text-dim: #98989d;
+    --border: #38383a;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  :root[data-theme="light"] {
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --text-dim: #6e6e73;
+    --border: #e5e5ea;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle">🌙 다크모드</button>
+<div class="app">
+  <h1>할 일</h1>
+
+  <div class="card">
+    <form class="add-form" id="addForm">
+      <div class="add-form-row">
+        <input type="text" id="titleInput" class="title-input" placeholder="할 일을 입력하세요" maxlength="200" required>
+        <button type="submit" class="btn-add">추가</button>
+      </div>
+      <div class="add-form-row">
+        <input type="text" id="tagInput" placeholder="카테고리/태그 (예: 업무, 개인)" maxlength="30">
+        <select id="priorityInput">
+          <option value="low">낮음</option>
+          <option value="medium" selected>보통</option>
+          <option value="high">높음</option>
+        </select>
+        <input type="date" id="dueInput">
+      </div>
+    </form>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="active">진행중</button>
+    <button class="filter-btn" data-filter="done">완료</button>
+    <select id="tagFilter" class="tag-select">
+      <option value="">모든 태그</option>
+    </select>
+  </div>
+
+  <ul class="list" id="list"></ul>
+  <div class="empty" id="emptyMsg" style="display:none;">할 일이 없습니다</div>
+
+  <div class="stats" id="stats"></div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'todo-app-items-v1';
+  const THEME_KEY = 'todo-app-theme';
+
+  let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let filter = 'all';
+  let tagFilter = '';
+
+  const list = document.getElementById('list');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const stats = document.getElementById('stats');
+  const addForm = document.getElementById('addForm');
+  const titleInput = document.getElementById('titleInput');
+  const tagInput = document.getElementById('tagInput');
+  const priorityInput = document.getElementById('priorityInput');
+  const dueInput = document.getElementById('dueInput');
+  const tagFilterSelect = document.getElementById('tagFilter');
+  const themeToggle = document.getElementById('themeToggle');
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  const priorityLabel = { high: '높음', medium: '보통', low: '낮음' };
+  const priorityRank = { high: 0, medium: 1, low: 2 };
+
+  function renderTagOptions() {
+    const tags = [...new Set(items.map(i => i.tag).filter(Boolean))].sort();
+    const current = tagFilterSelect.value;
+    tagFilterSelect.innerHTML = '<option value="">모든 태그</option>' +
+      tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+    tagFilterSelect.value = tags.includes(current) ? current : '';
+    tagFilter = tagFilterSelect.value;
+  }
+
+  function render() {
+    renderTagOptions();
+
+    let filtered = items.filter(i => {
+      if (filter === 'active' && i.done) return false;
+      if (filter === 'done' && !i.done) return false;
+      if (tagFilter && i.tag !== tagFilter) return false;
+      return true;
+    });
+
+    filtered.sort((a, b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      if (a.priority !== b.priority) return priorityRank[a.priority] - priorityRank[b.priority];
+      if (a.due && b.due) return a.due.localeCompare(b.due);
+      if (a.due) return -1;
+      if (b.due) return 1;
+      return b.createdAt - a.createdAt;
+    });
+
+    list.innerHTML = '';
+    emptyMsg.style.display = filtered.length ? 'none' : 'block';
+
+    const today = todayStr();
+
+    for (const item of filtered) {
+      const li = document.createElement('li');
+      li.className = 'item' + (item.done ? ' done' : '');
+
+      const overdue = item.due && item.due < today && !item.done;
+
+      li.innerHTML = `
+        <button class="checkbox ${item.done ? 'checked' : ''}" data-action="toggle" data-id="${item.id}">${item.done ? '✓' : ''}</button>
+        <div class="item-body">
+          <div class="item-title ${item.done ? 'done' : ''}">${escapeHtml(item.title)}</div>
+          <div class="item-meta">
+            <span class="badge priority-${item.priority}">${priorityLabel[item.priority]}</span>
+            ${item.tag ? `<span class="badge tag">${escapeHtml(item.tag)}</span>` : ''}
+            ${item.due ? `<span class="badge ${overdue ? 'overdue' : 'due'}">${overdue ? '지연 ' : '마감 '}${escapeHtml(item.due)}</span>` : ''}
+          </div>
+        </div>
+        <button class="delete-btn" data-action="delete" data-id="${item.id}">✕</button>
+      `;
+      list.appendChild(li);
+    }
+
+    const total = items.length;
+    const done = items.filter(i => i.done).length;
+    stats.textContent = total ? `전체 ${total}개 · 완료 ${done}개 · 남음 ${total - done}개` : '';
+  }
+
+  addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    if (!title) return;
+    items.push({
+      id: uid(),
+      title,
+      tag: tagInput.value.trim(),
+      priority: priorityInput.value,
+      due: dueInput.value,
+      done: false,
+      createdAt: Date.now(),
+    });
+    titleInput.value = '';
+    tagInput.value = '';
+    dueInput.value = '';
+    priorityInput.value = 'medium';
+    save();
+    render();
+    titleInput.focus();
+  });
+
+  list.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === 'toggle') {
+      const item = items.find(i => i.id === id);
+      if (item) item.done = !item.done;
+    } else if (btn.dataset.action === 'delete') {
+      items = items.filter(i => i.id !== id);
+    }
+    save();
+    render();
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  tagFilterSelect.addEventListener('change', () => {
+    tagFilter = tagFilterSelect.value;
+    render();
+  });
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    themeToggle.textContent = theme === 'dark' ? '☀️ 라이트모드' : '🌙 다크모드';
+    localStorage.setItem(THEME_KEY, theme);
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else {
+    applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
